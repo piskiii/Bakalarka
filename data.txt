@@ -1,38 +1,53 @@
-pocet_usekov: -1
+pocet_usekov: 2
 dlzky_usekov:
-q_useky:
-F_useky:
-  Sila na konci: 0
-F_x_useky:
-Sily v podporach:
-  FAx: 200.0
-  FAy: 0.0
-  FB: -200.0
-R_useky:
-Rx_useky:
-M_useky:
-pocet_usekov: 3
+  dlzka_useku_1: 150.0
+  dlzka_useku_2: 250.0
 q_useky:
   q_usek_1: 0
-  q_usek_2: 2
+  q_usek_2: 0
   q_usek_3: 0
 F_useky:
   F_usek_1: 0
-  F_usek_2: 0
+  F_usek_2: -500.0
   F_usek_3: 0
-  F_usek_4: 0
   Sila na konci: 0
 F_x_useky:
   F_x_usek_1: 0
-  F_x_usek_2: 0
+  F_x_usek_2: 0.0
   F_x_usek_3: 0
-  F_x_usek_4: 0
+Sily v podporach:
+  FAx: 485.0
+  FAy: 487.52525252525254
+  FB: 490.050505050505
 R_useky:
-  R_usek_1: 200.0
+  R_usek_1: 500.0
   R_usek_2: 0
   R_usek_3: 0
+Rx_useky:
+  Rx_usek_1: 125.0
+  Rx_usek_2: 0
+  Rx_usek_3: 0
 M_useky:
   M_usek_1: 0
   M_usek_2: 0
   M_usek_3: 0
-  M_usek_4: 0
+pocet_usekov: 2
+q_useky:
+  q_usek_1: 0
+  q_usek_2: 0
+F_useky:
+  F_usek_1: 0
+  F_usek_2: 0.0
+  F_usek_3: 0
+  Sila na konci: 0
+F_x_useky:
+  F_x_usek_1: 0
+  F_x_usek_2: -500.0
+  F_x_usek_3: 0
+R_useky:
+  R_usek_1: 625.0
+  R_usek_2: 0
+M_useky:
+  M_usek_1: 0
+  M_usek_2: 0
+  M_usek_3: 0
