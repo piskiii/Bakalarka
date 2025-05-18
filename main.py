@@ -4039,19 +4039,3 @@ window.bind('l', lambda event: enable_line_drawing())
 
 
 window.mainloop()
-
-
-""""
-Poznamky
-- vytvorenie ukladanie natocenia podpory a sily
-- vytvorit obrazky pre sily a podpory
-- spravit odstranovanie sil
-- pridat momenty, liniove zatazenie
-- upravit ukladanie a nacitanie
-- upravit zmenu rozmeru aby sa pohli aj podpory a sily (momenty)
-- pridat currect_dim_line
-- pridat koty k silam (momentom)
-- kontrola stupnov volnosti
-- oprava clear_canvas
-- nazvy ukladanie premenne v linear_force
-"""""
