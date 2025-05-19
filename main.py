@@ -1,4 +1,3 @@
-import traceback
 from tkinter import *
 from tkinter import messagebox, Scale, HORIZONTAL, ttk
 import customtkinter
@@ -7,11 +6,8 @@ from PIL import Image, ImageTk
 import json
 import math
 import os
-
 import numpy as np
 import matplotlib.pyplot as plt
-import ctypes
-import collections
 from collections import defaultdict
 
 
@@ -90,6 +86,7 @@ moment_image = customtkinter.CTkImage(dark_image=Image.open("image/moment.png"),
 #Canvas
 canvas = Canvas(main_frame, bg="white", width= 5000, height= 5000)
 canvas.pack(expand = YES, fill = BOTH)
+
 
 drawing_line_enabled = False
 drawing_arc_enabled = False
@@ -391,7 +388,7 @@ def change_dim_line():
             })
         deselect_line()
         canvas.unbind('<Button-1>')
-        print(calc_points)
+
 
     elif selected_arc:
         selected_coords = canvas.coords(selected_arc)
@@ -982,7 +979,7 @@ def place_support():
                 if beam["coords"] == coords_line_sup:  # Porovnanie súradníc
                     beam["supports"].append(canvas.coords(sup))
                     beam["supports_index"].append(sup_index)
-        print(calc_points)
+
         sup_toplevel.destroy()
 
         deselect_line()
@@ -1020,7 +1017,7 @@ def place_support():
         sup_obj.append(sup)
         sup_toplevel.destroy()
         deselect_line()
-    print("combinated", combinated_ver)
+
 
 #funkcie pre zlovenie podpory
 def sup1():
@@ -1066,7 +1063,7 @@ def sup5():
 #funkcia na vytvorenie sily
 def place_force():
     global place_force_flag, force1, resized_force1_image, force1_1, start_force_x, start_force_y, end_x_adj, end_y_adj, forc_mag, force_counter,\
-        orientation, linear_angle_sin, linear_angle_cos, end_mag_y, start_mag_y, updated_angle,a,b,sum_force_y,linear_mag_y,sum_force_x,linear_mag_x
+        orientation, linear_angle_sin, linear_angle_cos, end_mag_y, start_mag_y, updated_angle,a,b,sum_force_y,linear_mag_y,sum_force_x,linear_mag_x,ay_lin,ax_lin
     scroll_bind()
     if selected_line:
         coords_line_force = canvas.coords(selected_line)
@@ -1099,20 +1096,34 @@ def place_force():
                         beam["forces"].append([canvas.coords(force)[0], canvas.coords(force)[1]])
                         beam["forces_mag"].append(forc_mag)
                         beam["forces_angle"].append(int(updated_angle))
-            print(calc_points)
+
             force_obj.append(force)
             force_c.append(canvas.coords(force))
             force_mag.append(forc_mag)
             force_toplevel.destroy()
             deselect_line()
-            print("combinated", combinated_ver)
+
         elif force_index == 2:
 
             if orientation == "horizontal":
-                start_linear_x = val_start + sel_coords[0]
-                start_linear_y = sel_coords[1] - (60 * linear_angle_cos) * start_mag_y + (60 * linear_angle_sin) * start_mag_y
-                end_linear_x = sel_coords[2] - val_end
-                end_linear_y = sel_coords[3] - (60 * linear_angle_cos) * end_mag_y + (60 * linear_angle_sin) * end_mag_y
+                if sel_coords[0] < sel_coords[2]:  # prút ide zľava doprava
+                    start_linear_x = sel_coords[0] + val_start
+                    start_linear_y = sel_coords[1] - (60 * linear_angle_cos) * start_mag_y + (
+                                60 * linear_angle_sin) * start_mag_y
+
+                    end_linear_x = sel_coords[2] - val_end
+                    end_linear_y = sel_coords[3] - (60 * linear_angle_cos) * end_mag_y + (
+                                60 * linear_angle_sin) * end_mag_y
+
+                else:  # prút ide sprava doľava
+                    start_linear_x = sel_coords[2] + val_start
+                    start_linear_y = sel_coords[3] - (60 * linear_angle_cos) * start_mag_y + (
+                                60 * linear_angle_sin) * start_mag_y
+
+                    end_linear_x = sel_coords[0] - val_end
+                    end_linear_y = sel_coords[1] - (60 * linear_angle_cos) * end_mag_y + (
+                                60 * linear_angle_sin) * end_mag_y
+
                 canvas.create_line(start_linear_x, start_linear_y, start_linear_x, sel_coords[1], width=5, arrow=LAST, arrowshape=(10, 7, 4))
                 canvas.create_line(end_linear_x, end_linear_y, end_linear_x, sel_coords[3], width=5, arrow=LAST, arrowshape=(10, 7, 4))
                 canvas.create_line(start_linear_x, start_linear_y, end_linear_x, end_linear_y, width=4, arrowshape=(10, 7, 4))
@@ -1120,97 +1131,125 @@ def place_force():
                 a = (end_linear_y - start_linear_y) / (end_linear_x - start_linear_x)
                 b = start_linear_y - a * start_linear_x
 
-                linear_x = start_linear_x + 30
-
                 linear_force_texts = canvas.create_text(start_linear_x,start_linear_y - (20 * linear_angle_cos) + (20 * linear_angle_sin),
                                                               text=f"{mag_start_text}N/mm", font=('Arial', 15),fill='darkred')
                 if mag_start_text != mag_end_text:
                     linear_force_texte = canvas.create_text(end_linear_x,end_linear_y - (20 * linear_angle_cos) + (20 * linear_angle_sin),
                                                                   text=f"{mag_end_text}N/mm", font=('Arial', 15),fill='darkred')
-                while linear_x < end_linear_x:
-                    linear_y = a * linear_x + b
-                    linear_forc = canvas.create_line(linear_x, linear_y, linear_x, sel_coords[1], width=5, arrow=LAST,arrowshape=(10, 7, 4))
-                    canvas.tag_lower(linear_forc)
-                    linear_force.append(linear_forc)
-                    linear_x += 30
+                step = 30
+                if start_linear_x < end_linear_x:  # prút zľava doprava
+                    linear_x = start_linear_x + step
+                    while linear_x < end_linear_x:
+                        linear_y = a * linear_x + b
+                        linear_forc = canvas.create_line(linear_x, linear_y, linear_x, sel_coords[1],
+                                                         width=5, arrow=LAST, arrowshape=(10, 7, 4))
+                        canvas.tag_lower(linear_forc)
+                        linear_force.append(linear_forc)
+                        linear_x += step
+                else:  # prút sprava doľava
+                    linear_x = start_linear_x - step
+                    while linear_x > end_linear_x:
+                        linear_y = a * linear_x + b
+                        linear_forc = canvas.create_line(linear_x, linear_y, linear_x, sel_coords[1],
+                                                         width=5, arrow=LAST, arrowshape=(10, 7, 4))
+                        canvas.tag_lower(linear_forc)
+                        linear_force.append(linear_forc)
+                        linear_x -= step
 
-                sign_y = -1 if end_linear_y > sel_coords[
-                    1] else 1  # štandardne by to malo byť -1 keď ide smerom dole (kladné zaťaženie)
-
+                sign_y = -1 if end_linear_y > sel_coords[1] else 1
                 start_mag_signed = sign_y * int(mag_start_text)
+                end_mag_signed = sign_y * int(mag_end_text)
 
-                linear_mag_y.append(float(start_mag_signed) * abs(start_linear_x - end_linear_x))
-                sum_force_y += linear_mag_y[-1]
+                # Výpočet veľkosti sily pre statickú rovnováhu
+                length = abs(start_linear_x - end_linear_x)
+                linear_mag_y.append(length * start_mag_signed)
+                sum_force_y += linear_mag_y[-1]  # pozor, kladné sily idú nadol, preto +=
+
+                # Výpočet stredu pôsobenia sily
                 ay_lin.append(abs(start_linear_x - end_linear_x) / 2 + start_linear_x)
 
+                # Zápis do dátovej štruktúry
                 force_linear.append((start_linear_x, start_linear_y, end_linear_x, end_linear_y))
                 combinated_hor.append(start_linear_x)
                 combinated_hor.append(end_linear_x)
-                force_linear_mag.append((mag_start_text, mag_end_text))
-                for beam in calc_points["horizontal"]:
-                    if beam["coords"] == coords_line_force:  # Porovnanie súradníc
-                        sign_y = -1 if end_linear_y > sel_coords[1] else 1  # štandardne by to malo byť -1 keď ide smerom dole (kladné zaťaženie)
+                force_linear_mag.append((start_mag_signed, end_mag_signed))
 
-                        start_mag_signed = sign_y * int(mag_start_text)
-                        end_mag_signed = sign_y * int(mag_end_text)
-                        beam["linear_forces"].append([start_linear_x,end_linear_x,end_linear_y])
+                # Pridanie do prislúchajúceho prútu
+                for beam in calc_points["horizontal"]:
+                    if beam["coords"] == coords_line_force:
+                        beam["linear_forces"].append([start_linear_x, end_linear_x, end_linear_y])
                         beam["linear_forces_mag"].append([start_mag_signed, end_mag_signed])
-                        print(calc_points)
 
                 force_toplevel.destroy()
                 deselect_line()
 
             if orientation == "vertical":
                 if sel_coords[1] < sel_coords[3]:  # prút ide zhora nadol
-                    start_linear_x = sel_coords[0] - (60 * linear_angle_sin) * start_mag_y + (
-                                60 * linear_angle_cos) * start_mag_y
                     start_linear_y = sel_coords[1] + val_start
-
-                    end_linear_x = sel_coords[2] - (60 * linear_angle_sin) * end_mag_y + (
-                                60 * linear_angle_cos) * end_mag_y
-                    end_linear_y = sel_coords[3] - val_end
-                else:  # prút ide zdola nahor
                     start_linear_x = sel_coords[0] - (60 * linear_angle_sin) * start_mag_y + (
                                 60 * linear_angle_cos) * start_mag_y
-                    start_linear_y = sel_coords[1] - val_start
 
+                    end_linear_y = sel_coords[3] - val_end
                     end_linear_x = sel_coords[2] - (60 * linear_angle_sin) * end_mag_y + (
                                 60 * linear_angle_cos) * end_mag_y
-                    end_linear_y = sel_coords[3] + val_end
+                else:  # prút ide zdola nahor
+                    start_linear_y = sel_coords[3] + val_start
+                    start_linear_x = sel_coords[2] - (60 * linear_angle_sin) * start_mag_y + (
+                                60 * linear_angle_cos) * start_mag_y
 
-                canvas.create_line(start_linear_x, start_linear_y, sel_coords[0], start_linear_y, width=5,arrow=LAST, arrowshape=(10, 7, 4))
-                canvas.create_line(end_linear_x, end_linear_y, sel_coords[2], end_linear_y, width=5, arrow=LAST,arrowshape=(10, 7, 4))
+                    end_linear_y = sel_coords[1] - val_end
+                    end_linear_x = sel_coords[0] - (60 * linear_angle_sin) * end_mag_y + (
+                                60 * linear_angle_cos) * end_mag_y
 
-                canvas.create_line(start_linear_x, start_linear_y, end_linear_x, end_linear_y, width=4,arrowshape=(10, 7, 4))
+                canvas.create_line(start_linear_x, start_linear_y, sel_coords[0], start_linear_y, width=5, arrow=LAST,
+                                   arrowshape=(10, 7, 4))
+                canvas.create_line(end_linear_x, end_linear_y, sel_coords[2], end_linear_y, width=5, arrow=LAST,
+                                   arrowshape=(10, 7, 4))
+                canvas.create_line(start_linear_x, start_linear_y, end_linear_x, end_linear_y, width=4,
+                                   arrowshape=(10, 7, 4))
 
                 a = (end_linear_x - start_linear_x) / (end_linear_y - start_linear_y)
                 b = start_linear_x - a * start_linear_y
 
-                linear_y = start_linear_y + 30
-
-                linear_force_texts = canvas.create_text(start_linear_x - (20 * linear_angle_sin) + (20 * linear_angle_cos), start_linear_y - 20,
+                linear_force_texts = canvas.create_text(
+                    start_linear_x - (20 * linear_angle_sin) + (20 * linear_angle_cos),
+                    start_linear_y - 20,
                     text=f"{mag_start_text}N/mm", font=('Arial', 15), fill='darkred')
-
                 if mag_start_text != mag_end_text:
-                    linear_force_texte = canvas.create_text(end_linear_x - (20 * linear_angle_sin) + (20 * linear_angle_cos), end_linear_y + 20,
-                            text=f"{mag_end_text}N/mm", font=('Arial', 15), fill='darkred')
+                    linear_force_texte = canvas.create_text(
+                        end_linear_x - (20 * linear_angle_sin) + (20 * linear_angle_cos),
+                        end_linear_y + 20,
+                        text=f"{mag_end_text}N/mm", font=('Arial', 15), fill='darkred')
 
-                while linear_y < end_linear_y:
-                    linear_x = a * linear_y + b
-                    linear_forc = canvas.create_line(linear_x, linear_y, sel_coords[0], linear_y, width=5, arrow=LAST,arrowshape=(10, 7, 4))
-                    canvas.tag_lower(linear_forc)
-                    linear_y += 30
+                step = 30
+                if start_linear_y < end_linear_y:  # prút zhora nadol
+                    linear_y = start_linear_y + step
+                    while linear_y < end_linear_y:
+                        linear_x = a * linear_y + b
+                        linear_forc = canvas.create_line(linear_x, linear_y, sel_coords[0], linear_y,
+                                                         width=5, arrow=LAST, arrowshape=(10, 7, 4))
+                        canvas.tag_lower(linear_forc)
+                        linear_force.append(linear_forc)
+                        linear_y += step
+                else:  # prút zdola nahor
+                    linear_y = start_linear_y - step
+                    while linear_y > end_linear_y:
+                        linear_x = a * linear_y + b
+                        linear_forc = canvas.create_line(linear_x, linear_y, sel_coords[0], linear_y,
+                                                         width=5, arrow=LAST, arrowshape=(10, 7, 4))
+                        canvas.tag_lower(linear_forc)
+                        linear_force.append(linear_forc)
+                        linear_y -= step
 
                 sign_x = 1 if end_linear_x > sel_coords[0] else -1
                 start_mag_signed = sign_x * int(mag_start_text)
                 end_mag_signed = sign_x * int(mag_end_text)
 
-                # Výpočet veľkosti sily pre statickú rovnováhu
-                linear_mag_x.append(abs(start_linear_y - end_linear_y) * start_mag_signed)
-                sum_force_x -= linear_mag_x[-1]
-                ax_lin.append(abs(start_linear_y - end_linear_y) / 2 + start_linear_y)
+                length = abs(start_linear_y - end_linear_y)
+                linear_mag_x.append(length * start_mag_signed)
+                sum_force_x = -linear_mag_x[-1]
+                ax_lin.append(min(start_linear_y, end_linear_y) + length / 2)
 
-                # Zápis do dátovej štruktúry
                 force_linear.append((start_linear_x, start_linear_y, end_linear_x, end_linear_y))
                 combinated_ver.append(start_linear_y)
                 combinated_ver.append(end_linear_y)
@@ -1218,17 +1257,12 @@ def place_force():
 
                 for beam in calc_points["vertical"]:
                     if beam["coords"] == coords_line_force:
-                        sign_x = 1 if end_linear_x > sel_coords[0] else -1
-                        start_mag_signed = sign_x * int(mag_start_text)
-                        end_mag_signed = sign_x * int(mag_end_text)
-
                         beam["linear_forces"].append([start_linear_y, end_linear_y, end_linear_x])
                         beam["linear_forces_mag"].append([start_mag_signed, end_mag_signed])
-                        print("ssssssssssssssssssssssss",beam["linear_forces_mag"])
 
                 force_toplevel.destroy()
                 deselect_line()
-            print("combinated", combinated_ver)
+
 
     if selected_arc:
         start_x = canvas.coords(selected_arc)[0]
@@ -2125,7 +2159,6 @@ def place_moment():
                     else:
                         beam["moments_mag"].append(-int(moment_mag))
 
-            print("combinated", combinated_hor)
         if orientation == "vertical":
             if sel_coords[1]>sel_coords[3]:
                 sel_coords[1] = sel_coords[3]
@@ -2335,7 +2368,7 @@ def place_moment_window():
 
 def calc():
     global lines, force_obj, force_mag, sup_obj, sup_obj_ind, force_angle, size_c, force_linear, force_linear_mag,c,k,sup_angle\
-        , force_c, filtered_0_hor,sum_force_y,sum_force_x,linear_mag_y,con_point,arcs,T_all,M_all,N_all,T_all_ver,M_all_ver,N_all_ver,x_coords,y_coords,lines_sorted
+        , force_c, filtered_0_hor,sum_force_y,sum_force_x,linear_mag_y,con_point,arcs,T_all,M_all,N_all,T_all_ver,M_all_ver,N_all_ver,x_coords,y_coords,lines_sorted,ay_lin,ax_lin
 
 
     coords_c = []
@@ -2456,12 +2489,6 @@ def calc():
         # Nastavenie current_beam ako previous_beam pre ďalšiu iteráciu
         previous_beam = updated_beam
 
-    # Výstup v požadovanom formáte
-    for line in lines_sorted:
-        print(f"Prut: {line}")
-    for line in lines_updated:
-        print(f"Prut_upd: {line}")
-
     lines_sorted = lines_updated
 
     segments_hor = []  # Pre horizontálne prúty
@@ -2490,10 +2517,10 @@ def calc():
         # Nájsť smer prútu z lines_updated
         beam_direction = None
         for line in lines_updated:
-            print("beam dir", beam_direction)
+
             if (line[0] == (start_x, beam["coords"][1]) and line[1] == (end_x, beam["coords"][3])) or (line[0] == (end_x, beam["coords"][3]) and line[1] == (start_x, beam["coords"][1])):
                 beam_direction = line[3]  # predpokladám, že smer je na 4. pozícii (napr. 'right', 'left', 'up', 'down')
-                print("beam dir",beam_direction)
+
                 break
 
         if beam_direction == "right":
@@ -2503,7 +2530,7 @@ def calc():
             unique_hor.append(sorted(set(segments_hor), reverse=True))  # zostupné zoradenie
             num_segments_hor.extend(sorted(set(segments_hor)))
 
-        print("uniqueeeeeeeee",unique_hor)
+
         # Pridaj unikátne segmenty do celkového zoznamu segmentov pre neskoršie použitie, ak je potrebné
 
     for beam in calc_points["vertical"]:
@@ -2523,11 +2550,11 @@ def calc():
         # Nájsť smer prútu z lines_updated
         beam_direction = None
         for line in lines_updated:
-            print("beam dir", beam_direction)
+
             if (line[0] == (beam["coords"][0], start_y) and line[1] == (beam["coords"][2], end_y)) or (
                     line[0] == (beam["coords"][2], end_y) and line[1] == (beam["coords"][0], start_y)):
                 beam_direction = line[3]  # predpokladám, že smer je na 4. pozícii (napr. 'up', 'down')
-                print("beam dir", beam_direction)
+
                 break
 
         # Urči smer prútu a zoradiť segmenty pre tento konkrétny prút
@@ -2542,7 +2569,6 @@ def calc():
     #uprav up,down podmienka prut predtym right left a nasledne revesre!!!!!!!!!!!!!!!!!
 
     num_segments = len(num_segments_hor) + len(num_segments_ver) - len(lines_updated)
-    print("segments_hor,segments_ver",segments_hor,segments_ver,num_segments)
     q_seg = [0] * (num_segments+1)
     F_seg = [0] * (num_segments+1)
     F_x_seg = [0] * (num_segments+1)
@@ -2575,6 +2601,7 @@ def calc():
                                  #   q_magnitude *= -1
 
                                 q_seg[segment_pos] += q_magnitude
+
                         for idx, force in enumerate(beam["forces"]):
                             if segments_subset[i] == force[0] and force[1] == start_y:
                                 force_angle_seg = beam["forces_angle"][idx]
@@ -2616,8 +2643,11 @@ def calc():
                     for i in range(len(segments_subset) - 1):
                         # Iterácia cez segmenty prútu
                         for idx, linear in enumerate(beam["linear_forces"]):
-                            if segments_subset[i + 1] > linear[0] and segments_subset[i] < linear[1] and abs(
-                                    start_x - linear[2]) <= 60:
+                            #segments_subset[i + 1] > linear_start and segments_subset[i] < linear_end and linear[2] - 60 <= start_y <= linear[2] + 60
+                            #if segments_subset[i + 1] > linear[1]:
+                            #if segments_subset[i] < linear[0]:
+                            #if linear[2] - 60 <= start_x <= linear[2] + 60:
+                            if segments_subset[i + 1] >= linear[0] and segments_subset[i] <= linear[1] and linear[2] - 60 <= start_x <= linear[2] + 60:
                                 q_seg[segment_pos] += beam["linear_forces_mag"][idx][0]
                         for idx, force in enumerate(beam["forces"]):
                             if segments_subset[i] == force[1] and force[0] == start_x:
@@ -2626,7 +2656,6 @@ def calc():
                                     math.cos(math.radians(force_angle_seg)), 2)
                                 F_x_seg[segment_pos] += beam["forces_mag"][idx] * round(
                                     math.sin(math.radians(force_angle_seg)), 2)
-                                print("Pridávam silu na ver na", F_seg, F_x_seg, segment_pos)
                         for idx, moment in enumerate(beam["moments"]):
                             if segments_subset[i] == moment[1] and moment[0] == start_x:
                                 M_seg[segment_pos] += beam["moments_mag"][idx]
@@ -2643,15 +2672,6 @@ def calc():
 
                         segment_pos += 1
 
-    # Vypis vyslednych hodnot pre kontrolu
-    print("ccc",calc_points)
-    print("q_seg:", q_seg)
-    print("F_seg:", F_seg)
-    print("F_x_seg:", F_x_seg)
-    print("M_seg:", M_seg)
-    print("R_seg:", R_seg)
-    print("Rx_seg:", R_x_seg)
-
     # rozdelenie pre urcenie x[n] k podporam
     if sup_obj_ind[0] != 3:
         x_ver_flag = 0
@@ -2659,23 +2679,19 @@ def calc():
         # Kontrola pre horizontálne alebo vertikálne prúty
         if (sup_obj_c[0][0] < sup_obj_c[1][0] or sup_obj_c[0][1] > sup_obj_c[1][1]) and sup_obj_ind[0] == 1:
             sup_flag = 2
-            print("Tady 1")
 
         elif (sup_obj_c[0][0] > sup_obj_c[1][0] or sup_obj_c[0][1] < sup_obj_c[1][1]) and sup_obj_ind[0] == 2:
             sup_flag = 2
             sup_obj_c[0], sup_obj_c[1] = sup_obj_c[1], sup_obj_c[0]
             sup_obj_ind[0], sup_obj_ind[1] = sup_obj_ind[1], sup_obj_ind[0]
-            print("Tady 2")
 
         elif (sup_obj_c[0][0] > sup_obj_c[1][0] or sup_obj_c[0][1] < sup_obj_c[1][1]) and sup_obj_ind[0] == 1:
             sup_flag = 1
             sup_obj_c[0], sup_obj_c[1] = sup_obj_c[1], sup_obj_c[0]
             sup_obj_ind[0], sup_obj_ind[1] = sup_obj_ind[1], sup_obj_ind[0]
-            print("Tady 3")
 
         elif (sup_obj_c[0][0] < sup_obj_c[1][0] or sup_obj_c[0][1] > sup_obj_c[1][1]) and sup_obj_ind[0] == 2:
             sup_flag = 1
-            print("Tady 4")
 
     i = 0
     for mag in force_mag:
@@ -2740,7 +2756,6 @@ def calc():
             q_end_x = q[2]
             q_start_y = q[1]
             q_end_y = q[3]
-            print("q_start_y a q_end_y",q_start_y,q_end_y)
 
             #DOROB znamienko na prehodenie orient
             q_value = int(force_linear_mag[q_idx][0])
@@ -2752,7 +2767,6 @@ def calc():
 
             for i in range(len(filtered_ver) - 1):
                 start_y = filtered_ver[i]
-                print("start_y",start_y)
                 if q_start_y <= start_y < q_end_y:
                     q_usekov_ver[i] += q_value
 
@@ -2854,11 +2868,9 @@ def calc():
         if sup_obj_ind[0]==1:
             A_a = sup_obj_c[1][0]-sup_obj_c[0][0]
             A_b = sup_obj_c[0][1]-sup_obj_c[1][1]
-            print("aa ab",A_a,A_b)
         elif sup_obj_ind[1]==1:
             A_a = sup_obj_c[0][0]-sup_obj_c[1][0]
             A_b = sup_obj_c[1][1]-sup_obj_c[0][1]
-            print("aa ab",A_a,A_b)
         i = 0
 
         A[0,0] = 1
@@ -2890,9 +2902,15 @@ def calc():
             elif sup_obj_c[0][0] > sup_obj_c[1][0] and ay_lin:
                 moment -= (ay_lin[i] - sup_obj_c[1][0]) * linear_mag_y[i]
             if sup_obj_c[0][1] < sup_obj_c[1][1] and ax_lin:
-                moment -= (ax_lin[i] - sup_obj_c[0][1]) * linear_mag_x[i]
+                if sup_obj_ind[0] == 1:
+                    moment += (ax_lin[i] - sup_obj_c[0][1]) * linear_mag_x[i]
+                else:
+                    moment -= (ax_lin[i] - sup_obj_c[0][1]) * linear_mag_x[i]
             elif sup_obj_c[0][1] > sup_obj_c[1][1] and ax_lin:
-                moment -= (ax_lin[i] - sup_obj_c[1][1]) * linear_mag_x[i]
+                if sup_obj_ind[0] == 1:
+                    moment += (ax_lin[i] - sup_obj_c[1][1]) * linear_mag_x[i]
+                else:
+                    moment -= (ax_lin[i] - sup_obj_c[1][1]) * linear_mag_x[i]
             i += 1
 
         b[2] = -moment
@@ -2910,11 +2928,11 @@ def calc():
 
         moment = 0
         for M in M_mag:
-            moment += M
+            moment -= M
         for force in force_c:
             force_x = force_mag[i] * np.sin(np.radians(force_angle[i]))
             force_y = force_mag[i] * np.cos(np.radians(force_angle[i]))
-            moment -= (force[0] - sup_obj_c[0][0]) * force_y + (force[1] - sup_obj_c[0][1]) * force_x
+            moment += (force[0] - sup_obj_c[0][0]) * force_y + (force[1] - sup_obj_c[0][1]) * force_x
             i += 1
         i = 0
         for linear in force_linear:
@@ -2923,15 +2941,11 @@ def calc():
 
         b[2] = -moment
 
-    print("A", A)
-    print("b", b)
     x = np.linalg.solve(A, b)
     x = [round(element, 5) for element in x]
-    print("X ",x)
 
     #if sup_angle>0 and sup_angle <180:
         #x[2] *=-1
-    print("sup_angle",sup_angle)
     for idx,seg in enumerate(R_seg):
         if R_seg[idx] == "sup1":
             R_seg[idx] = x[1]
@@ -2939,8 +2953,10 @@ def calc():
         elif R_seg[idx] == "sup2":
             R_seg[idx] = round(x[2] * math.cos(math.radians(sup_angle)),5)
             R_x_seg[idx] = round(-x[2] * math.sin(math.radians(sup_angle)),5)
+        elif R_seg[idx] == "sup3":
+            R_seg[idx] = x[1]
+            R_x_seg[idx] = x[0]
 
-    print("R_segggg",R_seg,R_x_seg)
     R_usekov = [0] * (len(filtered))
     R_x_usekov = [0] * (len(filtered))
     R_x_usekov_ver = [0] * (len(filtered_ver))
@@ -3019,9 +3035,11 @@ def calc():
                             R_usekov[j] += reaction_force_y
                             R_x_usekov[j] += reaction_force_x
                             M_usekov[j] += reaction_moment
+                            M_seg[j] -= reaction_moment
                         if end_x == position_x:
                             R_usekov[j] += reaction_force_y
                             M_usekov[j] -= reaction_moment
+
 
     N_all = []
     T_all = []
@@ -3079,9 +3097,12 @@ def calc():
                 C = T_all[-1][-1]
                 B = N_all[-1][-1]
                 D = M_all[-1][-1]
-                print("11111111111",C,B,D)
+
+            B = round(B, 3)
+            C = round(C, 3)
+            D = round(D, 3)
+
             for i in range(len(beam_seg_hor) - 1):
-                print("new hor i",new_i,i)
                 start_x = beam_seg_hor[i]
                 if i < len(beam_seg_hor):
                     end_x = beam_seg_hor[i+1]
@@ -3097,7 +3118,7 @@ def calc():
                 elif lines_sorted[k][3] == "right" and lines_sorted[k - 1][3] == "down" and k>0:
                     q = q_seg[i + new_i]
                     B += R_x_seg[i + new_i]
-                    B += F_x_seg[i + new_i]
+                    B -= F_x_seg[i + new_i]
                     C += R_seg[i + new_i]
                     C += F_seg[i + new_i]
                     D -= M_seg[i + new_i]
@@ -3130,67 +3151,62 @@ def calc():
                 B = N_all[-1][-1]
                 C = T_all[-1][-1]
                 D = M_all[-1][-1]
-                print("B,C,D", B, C, D)
 
+            # Získanie farebnej palety (napr. tab10 má 10 rôznych farieb)
+            colors = plt.get_cmap('tab10')  # môžeš skúsiť aj 'Set1', 'tab20', 'Dark2', ...
 
             if len(lines_sorted) != 1:
                 # Horizontálne úseky
-                for i in range(start_graph_hor,len(T_all)):
-                    axs[0, k].plot(x_all[i], T_all[i], label=f'Úsek {i + 1} (T) - Horizontálny')
+                for i in range(start_graph_hor, len(T_all)):
+                    axs[0, k].plot(x_all[i], T_all[i], label=f'Úsek {i + 1} (T) - Horizontálny', color=colors(i % 10))
                 axs[0, k].set_xlabel('Pozícia x')
                 axs[0, k].set_ylabel('Napätie T')
-                #axs[0, k].set_title('Graf napätia T po horizontálnych úsekoch')
                 axs[0, k].legend()
                 axs[0, k].grid(True)
 
-                for i in range(start_graph_hor,len(M_all)):
-                    axs[1, k].plot(x_all[i], M_all[i], label=f'Úsek {i + 1} (M) - Horizontálny')
+                for i in range(start_graph_hor, len(M_all)):
+                    axs[1, k].plot(x_all[i], M_all[i], label=f'Úsek {i + 1} (M) - Horizontálny', color=colors(i % 10))
                 axs[1, k].set_xlabel('Pozícia x')
                 axs[1, k].set_ylabel('Moment M')
-                #axs[1, k].set_title('Graf momentu M po horizontálnych úsekoch')
                 axs[1, k].legend()
                 axs[1, k].grid(True)
 
-                for i in range(start_graph_hor,len(N_all)):
-                    axs[2, k].plot(x_all[i], N_all[i], label=f'Úsek {i + 1} (N) - Horizontálny')
+                for i in range(start_graph_hor, len(N_all)):
+                    axs[2, k].plot(x_all[i], N_all[i], label=f'Úsek {i + 1} (N) - Horizontálny', color=colors(i % 10))
                 axs[2, k].set_xlabel('Pozícia x')
                 axs[2, k].set_ylabel('Normálová sila N')
-                #axs[2, k].set_title('Graf normálovej sily N po horizontálnych úsekoch')
                 axs[2, k].legend()
                 axs[2, k].grid(True)
 
                 start_graph_hor = len(T_all)
+
             else:
-                # Graf pre napätie T
+                # Horizontálny prút – len jeden
                 for i in range(start_graph_hor, len(T_all)):
-                    axs[0].plot(x_all[i], T_all[i], label=f'Úsek {i + 1} (T) - Horizontálny')
+                    axs[0].plot(x_all[i], T_all[i], label=f'Úsek {i + 1} (T) - Horizontálny', color=colors(i % 10))
                 axs[0].set_xlabel("Pozícia x")
                 axs[0].set_ylabel("Napätie T")
-               # axs[0].set_title("Horizontálny prút - Napätie T")
                 axs[0].legend()
                 axs[0].grid(True)
 
-                # Graf pre moment M
                 for i in range(start_graph_hor, len(M_all)):
-                    axs[1].plot(x_all[i], M_all[i], label=f'Úsek {i + 1} (M) - Horizontálny', color="orange")
+                    axs[1].plot(x_all[i], M_all[i], label=f'Úsek {i + 1} (M) - Horizontálny', color=colors(i % 10))
                 axs[1].set_xlabel("Pozícia x")
                 axs[1].set_ylabel("Moment M")
-                #axs[1].set_title("Horizontálny prút - Moment M")
                 axs[1].legend()
                 axs[1].grid(True)
 
-                # Graf pre normálovú silu N
                 for i in range(start_graph_hor, len(N_all)):
-                    axs[2].plot(x_all[i], N_all[i], label=f'Úsek {i + 1} (N) - Horizontálny', color="green")
+                    axs[2].plot(x_all[i], N_all[i], label=f'Úsek {i + 1} (N) - Horizontálny', color=colors(i % 10))
                 axs[2].set_xlabel("Pozícia x")
                 axs[2].set_ylabel("Normálová sila N")
-                #axs[2].set_title("Horizontálny prút - Normálová sila N")
                 axs[2].legend()
                 axs[2].grid(True)
 
             new_i += len(beam_seg_hor) - 1
 
         elif lines_sorted[k][2] == "vertical":
+            ver_idx +=1
             if N_all and T_all and M_all and lines_sorted[k-1][2]=="horizontal":
                 if lines_sorted[k][3] == "down" and lines_sorted[k-1][3] == "right" and k>0:
                     C_y = -N_all[-1][-1]
@@ -3201,11 +3217,9 @@ def calc():
                     B_y = -T_all[-1][-1]
                     D_y = M_all[-1][-1]
 
-                print("C_y",C_y)
-                print("B_y", B_y)
-                print("C", C)
-                print("B", B)
-                print("D_y", D_y)
+            B_y = round(B_y, 3)
+            C_y = round(C_y, 3)
+            D_y = round(D_y, 3)
 
             for i in range(len(beam_seg_ver) - 1):
                 start_y = beam_seg_ver[i]
@@ -3265,60 +3279,54 @@ def calc():
                 B_y = N_all_ver[-1][-1]
                 D_y = M_all_ver[-1][-1]
 
+            # Farebná paleta (napr. 10 rôznych farieb)
+            colors = plt.get_cmap('tab10')
 
             if len(lines_sorted) != 1:
                 # Vertikálne úseky (pravý stĺpec)
-                for i in range(start_graph_ver,len(T_all_ver)):
-                    axs[0, k].plot(y_all[i], T_all_ver[i], label=f'Úsek {i + 1} (T) - Vertikálny')
+                for i in range(start_graph_ver, len(T_all_ver)):
+                    axs[0, k].plot(y_all[i], T_all_ver[i], label=f'Úsek {i + 1} (T) - Vertikálny', color=colors(i % 10))
                 axs[0, k].set_xlabel('Pozícia y')
                 axs[0, k].set_ylabel('Napätie T')
-                #axs[0, k].set_title('Graf napätia T po vertikálnych úsekoch')
                 axs[0, k].legend()
                 axs[0, k].grid(True)
 
-                for i in range(start_graph_ver,len(M_all_ver)):
-                    axs[1, k].plot(y_all[i], M_all_ver[i], label=f'Úsek {i + 1} (M) - Vertikálny')
+                for i in range(start_graph_ver, len(M_all_ver)):
+                    axs[1, k].plot(y_all[i], M_all_ver[i], label=f'Úsek {i + 1} (M) - Vertikálny', color=colors(i % 10))
                 axs[1, k].set_xlabel('Pozícia y')
                 axs[1, k].set_ylabel('Moment M')
-                #axs[1, k].set_title('Graf momentu M po vertikálnych úsekoch')
                 axs[1, k].legend()
                 axs[1, k].grid(True)
 
-                for i in range(start_graph_ver,len(N_all_ver)):
-                    axs[2, k].plot(y_all[i], N_all_ver[i], label=f'Úsek {i + 1} (N) - Vertikálny')
+                for i in range(start_graph_ver, len(N_all_ver)):
+                    axs[2, k].plot(y_all[i], N_all_ver[i], label=f'Úsek {i + 1} (N) - Vertikálny', color=colors(i % 10))
                 axs[2, k].set_xlabel('Pozícia y')
                 axs[2, k].set_ylabel('Normálová sila N')
-                #axs[2, k].set_title('Graf normálovej sily N po vertikálnych úsekoch')
                 axs[2, k].legend()
                 axs[2, k].grid(True)
 
                 start_graph_ver = len(y_all)
 
             else:
-                # Graf pre napätie T (vertikálny prút)
+                # Vertikálny prút – len jeden
                 for i in range(start_graph_ver, len(T_all_ver)):
-                    axs[0].plot(y_all[i], T_all_ver[i], label=f'Úsek {i + 1} (T) - Vertikálny')
+                    axs[0].plot(y_all[i], T_all_ver[i], label=f'Úsek {i + 1} (T) - Vertikálny', color=colors(i % 10))
                 axs[0].set_xlabel("Pozícia y")
                 axs[0].set_ylabel("Napätie T")
-                #axs[0].set_title("Vertikálny prút - Napätie T")
                 axs[0].legend()
                 axs[0].grid(True)
 
-                # Graf pre moment M (vertikálny prút)
                 for i in range(start_graph_ver, len(M_all_ver)):
-                    axs[1].plot(y_all[i], M_all_ver[i], label=f'Úsek {i + 1} (M) - Vertikálny', color="orange")
+                    axs[1].plot(y_all[i], M_all_ver[i], label=f'Úsek {i + 1} (M) - Vertikálny', color=colors(i % 10))
                 axs[1].set_xlabel("Pozícia y")
                 axs[1].set_ylabel("Moment M")
-                #axs[1].set_title("Vertikálny prút - Moment M")
                 axs[1].legend()
                 axs[1].grid(True)
 
-                # Graf pre normálovú silu N (vertikálny prút)
                 for i in range(start_graph_ver, len(N_all_ver)):
-                    axs[2].plot(y_all[i], N_all_ver[i], label=f'Úsek {i + 1} (N) - Vertikálny', color="green")
+                    axs[2].plot(y_all[i], N_all_ver[i], label=f'Úsek {i + 1} (N) - Vertikálny', color=colors(i % 10))
                 axs[2].set_xlabel("Pozícia y")
                 axs[2].set_ylabel("Normálová sila N")
-                #axs[2].set_title("Vertikálny prút - Normálová sila N")
                 axs[2].legend()
                 axs[2].grid(True)
 
@@ -3391,13 +3399,14 @@ def calc():
         for i, F in enumerate(M_usekov_ver, start=1):
             file.write(f"  M_usek_{i}: {F}\n")
 
+    window.withdraw()
     plt.tight_layout()
     plt.show()
+    graph()
 
 def graph():
     global lines,T_all,M_all,N_all,T_all_ver,M_all_ver,N_all_ver,x_coords,y_coords,lines_sorted,canvas,sup_angle,calc_points,support_image_dict
 
-    print(lines_sorted)
     if T_all:
         T_all = [[x * -1 for x in sublist] for sublist in T_all]
         M_all = [[x * -1 for x in sublist] for sublist in M_all]
@@ -3413,9 +3422,11 @@ def graph():
     support_images_refs = []
 
     # Vytvorenie nového okna
-    window_graph = customtkinter.CTk()
+    window_graph = CTkToplevel(window)
     window_graph.geometry("1280x720")
     window_graph.title("Graph Window")
+
+    window_graph.protocol("WM_DELETE_WINDOW", on_closing)
 
     # Nastavenie mriežky pre okno (window_graph)
     window_graph.grid_rowconfigure(0, weight=1)
@@ -3683,16 +3694,13 @@ def graph():
             ver_offset = useky_y  # Aktualizujeme globálny offset pre vertikálne dáta až po spracovaní celého segmentu
 
         x1 = None
-        y1 = None
         x2 = None
         y2 = None
         x2_old = None
         y2_old = None
 
     hor_offset = 0
-    useky_x = 0
     ver_offset = 0
-    useky_y = 0
     line_counter = 0
     x2_old = None
     y2_old = None
@@ -3814,10 +3822,14 @@ def graph():
                     y2_old = y2
             ver_offset = local_useky_y  # Aktualizujeme globálny offset pre vertikálne dáta
 
+        x1 = None
+        x2 = None
+        y2 = None
+        x2_old = None
+        y2_old = None
+
     hor_offset = 0
-    useky_x = 0
     ver_offset = 0
-    useky_y = 0
     line_counter = 0
     x2_old = None
     y2_old = None
@@ -3827,95 +3839,119 @@ def graph():
         stop = False
 
         if lines_sorted[k][2] == "horizontal":
+            local_useky_x = 0  # Lokálny počet prútov pre tento segment
             for rod in range(len(N_all)):  # Pre každý "prút"
-                useky_x += 1
-                if stop:
-                    graph_canvas_N.create_line(x2, lines_sorted[k][0][1], x2, y1,fill=color, width=2)
+                actual_index = rod + hor_offset
+                if actual_index >= len(N_all) or actual_index >= len(x_coords):
                     break
-                for i in range(len(N_all[rod + hor_offset]) - 1):  # Pre každý usek v danom prúte
-                    if N_all[rod + hor_offset][i]>0:
+                if stop:
+                    # graph_canvas_M.create_line(x2, lines_sorted[k][0][1], x2, y1, fill=color, width=2)
+                    break
+                for i in range(len(N_all[actual_index]) - 1):  # Pre každý úsek v danom prúte
+                    if N_all[actual_index][i] > 0:
                         color = "red"
-                    elif N_all[rod + hor_offset][i]<0:
+                    elif N_all[actual_index][i] < 0:
                         color = "blue"
                     else:
                         color = "black"
-                    x1 = float(x_coords[rod + hor_offset][i])
-                    y1 = float(N_all[rod + hor_offset][i]) + lines_sorted[k][0][1]
-                    x2 = float(x_coords[rod + hor_offset][i + 1])
-                    y2 = float(N_all[rod + hor_offset][i + 1]) + lines_sorted[k][1][1]
+                    x1 = float(x_coords[actual_index][i])
+                    y1 = float(N_all[actual_index][i]) + lines_sorted[k][0][1]
+                    x2 = float(x_coords[actual_index][i + 1])
+                    y2 = float(N_all[actual_index][i + 1]) + lines_sorted[k][1][1]
                     if i == 0:
                         graph_canvas_N.create_line(x1, lines_sorted[k][0][1], x1,
-                                                   float(N_all[rod + hor_offset][i]) + lines_sorted[k][0][1],
-                                                   fill=color, width=2)
-                    if i == len(N_all) - 2:
-                        graph_canvas_N.create_line(x2, lines_sorted[k][0][1], x2,
-                                                   float(N_all[rod + hor_offset][-1]) + lines_sorted[k][0][1],
-                                                   fill=color, width=2)
-
+                                                   float(N_all[actual_index][0]) + lines_sorted[k][0][1], fill=color,
+                                                   width=2)
                     if x2 >= lines_sorted[k][1][0]:
                         stop = True
-                        hor_offset = useky_x
                         break
                     if x2_old is not None:
                         graph_canvas_N.create_line(x2, y2, x2_old, y2_old, fill=color, width=2)
                         x2_old = None
                         y2_old = None
                     if line_counter == 15:
-                        graph_canvas_N.create_line(x1, lines_sorted[k][0][1], x1, float(N_all[rod + hor_offset][i]) + lines_sorted[k][0][1], fill=color, width=2)
-                        line_counter = 0
-                    graph_canvas_N.create_line(x1, y1, x2, y2, fill=color, width=2)
-                    line_counter +=1
-                if rod == 0 and k ==0:
-                    print("s")
-                    #graph_canvas_N.create_line(float(x_coords[rod + hor_offset][0]), lines_sorted[k][0][1], float(x_coords[rod + hor_offset][0]),float(N_all[rod + hor_offset][0]) + lines_sorted[k][0][1], fill=color, width=2)
-                if rod != len(N_all)-1:
-                    x2_old = x2
-                    y2_old = y2
-
-        elif lines_sorted[k][2] == "vertical":
-            for rod in range(len(N_all_ver)):  # Pre každý "prút"
-                useky_y+=1
-                if stop:
-                    graph_canvas_N.create_line(y2, lines_sorted[k][1][1], y2, x1,fill=color, width=2)
-                    break
-                for i in range(len(N_all_ver[rod + ver_offset]) - 1):  # Pre každý úsek v danom prúte
-                    if N_all_ver[rod + ver_offset][i]>0:
-                        color = "red"
-                    elif N_all_ver[rod + ver_offset][i]<0:
-                        color = "blue"
-                    else:
-                        color = "black"
-                    y1 = float(y_coords[rod + ver_offset][i])  # Namiesto x_coords teraz y_coords
-                    x1 = float(N_all_ver[rod + ver_offset][i]) + lines_sorted[k][0][0]  # Použiť správnu os
-                    y2 = float(y_coords[rod + ver_offset][i + 1])
-                    x2 = float(N_all_ver[rod + ver_offset][i + 1]) + lines_sorted[k][1][0]
-                    if i == 0:
-                        graph_canvas_N.create_line(lines_sorted[k][0][0], y1,
-                                                   float(N_all_ver[rod + ver_offset][i]) + lines_sorted[k][0][0], y1,
-                                                   fill=color, width=2)
-                    if i == len(N_all_ver) - 2:
-                        graph_canvas_N.create_line(lines_sorted[k][0][0], y2,
-                                                   float(N_all_ver[rod + ver_offset][-1]) + lines_sorted[k][0][0], y2,
-                                                   fill=color, width=2)
-                    if y2 >= lines_sorted[k][1][1]:
-                        stop = True
-                        ver_offset = useky_y
-                        break
-                    if x2_old is not None:
-                        graph_canvas_N.create_line(x2, y2, x2_old, y2_old, fill=color, width=2)
-                        x2_old = None
-                        y2_old = None
-                    if line_counter == 15:
-                        graph_canvas_N.create_line(lines_sorted[k][0][0], y1, float(N_all_ver[rod + ver_offset][i]) + lines_sorted[k][0][0],y1, fill=color, width=2)
+                        graph_canvas_N.create_line(x1, lines_sorted[k][0][1], x1,
+                                                   float(N_all[actual_index][i]) + lines_sorted[k][0][1], fill=color,
+                                                   width=2)
                         line_counter = 0
                     graph_canvas_N.create_line(x1, y1, x2, y2, fill=color, width=2)
                     line_counter += 1
+
+                if rod != len(N_all) - 1:
+                    x2_old = x2
+                    y2_old = y2
+                local_useky_x += 1  # Zvýšime počet prútov pre tento segment
+            hor_offset = local_useky_x  # Aktualizujeme globálny offset až po spracovaní celého horizontálneho segmentu
+
+
+        elif lines_sorted[k][2] == "vertical":
+            local_useky_y = 0  # Lokálny počet prútov pre vertikálny segment
+            for rod in range(len(N_all_ver)):  # Pre každý "prút"
+                actual_index = rod + ver_offset
+                if actual_index >= len(N_all_ver) or actual_index >= len(y_coords):
+                    break
+                local_useky_y += 1
+                if stop:
+                    graph_canvas_N.create_line(y2, lines_sorted[k][1][1], y2, x1, fill=color, width=2)
+                    break
+                for i in range(len(N_all_ver[actual_index]) - 1):  # Pre každý úsek v danom prúte
+                    if N_all_ver[actual_index][i] > 0:
+                        color = "red"
+                    elif N_all_ver[actual_index][i] < 0:
+                        color = "blue"
+                    else:
+                        color = "black"
+                    y1 = float(y_coords[actual_index][i])
+                    x1 = float(N_all_ver[actual_index][i]) + lines_sorted[k][0][0]
+                    y2 = float(y_coords[actual_index][i + 1])
+                    x2 = float(N_all_ver[actual_index][i + 1]) + lines_sorted[k][1][0]
+                    if i == 0:
+                        graph_canvas_N.create_line(lines_sorted[k][0][0], y1,
+                                                   float(N_all_ver[actual_index][i]) + lines_sorted[k][0][0], y1,
+                                                   fill=color, width=2)
+                    if i == len(N_all_ver) - 2:
+                        graph_canvas_N.create_line(lines_sorted[k][0][0], y2,
+                                                   float(N_all_ver[actual_index][-1]) + lines_sorted[k][0][0], y2,
+                                                   fill=color, width=2)
+                    if y2 >= lines_sorted[k][1][1]:
+                        stop = True
+                        break
+                    if x2_old is not None:
+                        graph_canvas_N.create_line(x2, y2, x2_old, y2_old, fill=color, width=2)
+                        x2_old = None
+                        y2_old = None
+                    if line_counter == 15:
+                        graph_canvas_N.create_line(lines_sorted[k][0][0], y1,
+                                                   float(N_all_ver[actual_index][i]) + lines_sorted[k][0][0], y1,
+                                                   fill=color, width=2)
+                        line_counter = 0
+                    graph_canvas_N.create_line(x1, y1, x2, y2, fill=color, width=2)
+                    line_counter += 1
+                # Voliteľne: kreslenie spojovacej čiary pre prvý prút v segmente (ak potrebuješ)
                 if rod == 0 and k == 0:
-                    print("s")
-                    #graph_canvas_N.create_line(float(y_coords[rod + ver_offset][0]), lines_sorted[k][0][0], float(y_coords[rod + ver_offset][0]),float(N_all_ver[rod + ver_offset][0]) + lines_sorted[k][0][0], fill=color, width=2)
+                    if rod == 0 and k == 0:
+                        ix = actual_index
+                        if ix >= len(y_coords):
+                            ix = len(y_coords) - 1
+                        start_y = float(y_coords[ix][0])
+                        base_x = lines_sorted[k][0][0]
+                        N_x = float(N_all_ver[ix][0]) + base_x
+                        graph_canvas_N.create_line(
+                            base_x, start_y,
+                            N_x, start_y,
+                            fill=color,
+                            width=2
+                        )
                 if rod != len(N_all_ver) - 1:
                     x2_old = x2
                     y2_old = y2
+            ver_offset = local_useky_y  # Aktualizujeme globálny offset pre vertikálne dáta
+
+        x1 = None
+        x2 = None
+        y2 = None
+        x2_old = None
+        y2_old = None
 
     label_T = Label(window_graph, text="T", font=("Arial", 20, "bold"), bg="white")
     label_T.place(relx=0.75, rely=0.05)
@@ -3964,11 +4000,11 @@ def graph():
     graph_canvas_O.bind("<MouseWheel>", on_mousewheel)
     graph_canvas_O.bind("<Configure>", on_configure)
 
-    window.destroy()
     # Spustenie cyklu udalostí
-    window_graph.mainloop()
+    window.withdraw()
 
-
+def error():
+    messagebox.showerror(title="Error", message="Nedokončená funkcia")
 
 
 #buttons in tool_frame
@@ -4004,7 +4040,7 @@ button14.pack(padx=5, pady=5, ipady=10)
 #buttons in menu
 button_menu1 = customtkinter.CTkButton(menu_frame, text="", image = calculate, width= 150, command = calc)
 button_menu1.grid(row=0, column=0, padx = 5, pady = 5, ipady = 10)
-button_menu2 = customtkinter.CTkButton(menu_frame, text="", image = save, command=save_canvas, width= 150)
+button_menu2 = customtkinter.CTkButton(menu_frame, text="", image = save, command=error, width= 150)
 button_menu2.grid(row=0, column=1, padx = 5, pady = 5, ipady = 10)
 button_menu3 = customtkinter.CTkButton(menu_frame, text="",image = change_dimension, width= 150, command=change_dim_line)
 button_menu3.grid(row=0, column=2, padx = 5, pady = 5, ipady = 10)
@@ -4020,22 +4056,22 @@ button_menu8 = customtkinter.CTkButton(menu_frame, text="", image = move_image, 
 button_menu8.grid(row=0, column=4, padx = 5, pady = 5, ipady = 10)
 
 #AR buttons
-button_AR1 = customtkinter.CTkButton(ar_frame, text="", image = undo_image,width= 10, height= 15, command=graph)
+button_AR1 = customtkinter.CTkButton(ar_frame, text="", image = undo_image,width= 10, height= 15, command=error)
 button_AR1.grid(row=0, column=0, padx = 5, pady = 5, ipady = 10)
-button_AR2 = customtkinter.CTkButton(ar_frame, text="", image = redo_image,width= 10, height= 15, command=redo)
+button_AR2 = customtkinter.CTkButton(ar_frame, text="", image = redo_image,width= 10, height= 15, command=error)
 button_AR2.grid(row=0, column=1, padx = 5, pady = 5, ipady = 10)
-button_AR3 = customtkinter.CTkButton(ar_frame, text="", image = delete_image,width= 10, height= 15, command=clear_canvas)
+button_AR3 = customtkinter.CTkButton(ar_frame, text="", image = delete_image,width= 10, height= 15, command=error)
 button_AR3.grid(row=0, column=2, padx = 5, pady = 5, ipady = 10)
 
 #nacitanie platnaf
 load_canvas()
 
 window.bind("<Escape>", lambda event: deselect_line())
-window.bind("<Control-s>", lambda event: save_canvas())
 window.bind('c', lambda event: change_dim_line())
-window.bind("<Control-z>", lambda event: undo())
-window.bind("<Control-y>", lambda event: redo())
 window.bind('l', lambda event: enable_line_drawing())
-
+ 
+def on_closing():
+    window.destroy()
+    os._exit(0)
 
 window.mainloop()
