@@ -1,1 +1,24 @@
 .idea/__pycache__/venv/zaloha.py
+# Ignoruj build výstupy
+build/
+dist/
+*.spec
+
+# Ignoruj všetky binárne a systémové súbory
+*.exe
+*.dll
+*.pyd
+*.enc
+*.lib
+*.manifest
+
+# Ignoruj dočasné priečinky PyInstalleru
+output/*/_internal/
+output/*/temp/
+
+# PyCharm a Python špecifické
+__pycache__/
+*.pyc
+.idea/
+*.log
+.env
