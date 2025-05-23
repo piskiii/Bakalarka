@@ -12,6 +12,8 @@ Najjednoduchší spôsob, ako spustiť aplikáciu, je stiahnuť si predkompilova
 2.  Stiahnite si najnovší `VVU.exe` súbor (alebo `.zip` archív obsahujúci `.exe`) z posledného vydania.
 3.  Spustite `VVU.exe`. Inštalácia nie je potrebná.
 
+**Upozornenie:** Keďže aplikácia nie je digitálne podpísaná, váš operačný systém Windows (Windows Defender SmartScreen) alebo antivírusový program môže pri prvom spustení zobraziť varovanie. Toto je štandardné správanie pre aplikácie od neznámych vydavateľov. Súbor je bezpečný. Ak sa zobrazí varovanie, možno budete musieť kliknúť na "Ďalšie informácie" a potom "Spustiť aj tak".
+
 ## Spustenie zo Zdrojového Kódu (pre Vývojárov)
 
 Ak si chcete aplikáciu spustiť priamo zo zdrojového kódu alebo do nej nahliadnuť:
