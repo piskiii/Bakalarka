@@ -4,19 +4,6 @@ Vitajte v repozitári mojej bakalárskej práce! Táto aplikácia bola vyvinutá
 
 Cieľom bolo vytvoriť intuitívne prostredie, ktoré zjednodušuje proces statickej analýzy a pomáha lepšie pochopiť správanie sa konštrukcií pod zaťažením.
 
-## Kľúčové Funkcie
-
-* **Grafické Modelovanie:** Jednoduché kreslenie nosníkov (priamych aj oblúkových) a ich spájanie priamo na plátne.
-* **Presné Kótovanie:** Automatické zobrazenie rozmerov nakreslených prvkov.
-* **Flexibilné Úpravy:** Možnosť dynamicky meniť rozmery už existujúcich častí konštrukcie.
-* **Definícia Podpier:** Široká škála typov podpier (pevná, posuvná, kĺbová) s nastaviteľnou orientáciou.
-* **Zadávanie Zaťažení:** Aplikácia bodových síl, spojitých (lineárnych) zaťažení a ohybových momentov na zvolené prvky.
-* **Statická Analýza:** Automatizovaný výpočet reakcií v podporách a priebehov vnútorných síl (normálová sila N, posúvajúca sila T, ohybový moment M).
-* **Vizuálne Výstupy:** Prehľadné zobrazenie diagramov N, T, M pomocou knižnice Matplotlib, integrované priamo v aplikácii.
-* **Správa Projektu:** Možnosť ukladania rozpracovaných konštrukcií do JSON súborov a ich následné načítanie.
-* **Používateľský Komfort:** Funkcie ako Späť/Znova (Undo/Redo) pre kresliace operácie a jednoduché mazanie prvkov.
-* **Moderné GUI:** Používateľské rozhranie postavené na knižnici CustomTkinter pre atraktívny a responzívny dizajn.
-
 ## Stiahnutie a Spustenie Aplikácie (`.exe`)
 
 Najjednoduchší spôsob, ako spustiť aplikáciu, je stiahnuť si predkompilovaný `.exe` súbor pre Windows:
