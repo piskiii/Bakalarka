@@ -9,10 +9,18 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 from collections import defaultdict
+import sys
 
+def resource_path(relative_path):
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
 
 window = customtkinter.CTk()
 window.geometry("1280x720")
+customtkinter.set_appearance_mode("dark")
 customtkinter.set_widget_scaling(1)  # widget dimensions and text size
 customtkinter.set_window_scaling(1)  # window geometry dimensions
 window.title("VVU")
@@ -60,28 +68,28 @@ menu_frame.grid_columnconfigure(5, weight=1)
 menu_frame.grid_columnconfigure(6, weight=1)
 menu_frame.grid_columnconfigure(7, weight=1)
 
-support1 = customtkinter.CTkImage(dark_image=Image.open("image/sup1.jpg"), size=(50, 50))
-support2 = customtkinter.CTkImage(dark_image=Image.open("image/sup2.jpg"), size=(50, 50))
-support3 = customtkinter.CTkImage(dark_image=Image.open("image/sup3.jpg"), size=(50, 50))
-support4 = customtkinter.CTkImage(dark_image=Image.open("image/sup4.jpg"), size=(50, 50))
-support5 = customtkinter.CTkImage(dark_image=Image.open("image/sup5.jpg"), size=(50, 50))
-line = customtkinter.CTkImage(dark_image=Image.open("image/line.jpg"), size=(60, 60))
-arc_1 = customtkinter.CTkImage(dark_image=Image.open("image/arc1.jpg"), size=(60, 60))
-arc_2 = customtkinter.CTkImage(dark_image=Image.open("image/arc2.jpg"), size=(60, 60))
-arc_3 = customtkinter.CTkImage(dark_image=Image.open("image/arc3.jpg"), size=(60, 60))
-arc_4 = customtkinter.CTkImage(dark_image=Image.open("image/arc4.jpg"), size=(60, 60))
-force = customtkinter.CTkImage(dark_image=Image.open("image/force.jpg"), size=(60, 60))
-save = customtkinter.CTkImage(dark_image=Image.open("image/save.png"), size=(30, 30))
-calculate = customtkinter.CTkImage(dark_image=Image.open("image/calculate.png"), size=(30, 30))
-change_dimension = customtkinter.CTkImage(dark_image=Image.open("image/change_dimension.png"), size=(30, 30))
-undo_image = customtkinter.CTkImage(dark_image=Image.open("image/undo.png"), size=(30, 30))
-redo_image = customtkinter.CTkImage(dark_image=Image.open("image/redo.png"), size=(30, 30))
-delete_image = customtkinter.CTkImage(dark_image=Image.open("image/delete.png"), size=(30, 30))
-beam_image = customtkinter.CTkImage(dark_image=Image.open("image/beam.png"), size=(30, 30))
-select_image = customtkinter.CTkImage(dark_image=Image.open("image/select.png"), size=(30, 30))
-move_image = customtkinter.CTkImage(dark_image=Image.open("image/move.png"), size=(30, 30))
-linear_force = customtkinter.CTkImage(dark_image=Image.open("image/linear.png"), size=(100, 60))
-moment_image = customtkinter.CTkImage(dark_image=Image.open("image/moment.png"), size=(60, 60))
+support1 = customtkinter.CTkImage(dark_image=Image.open(resource_path("image/sup1.jpg")), size=(50, 50))
+support2 = customtkinter.CTkImage(dark_image=Image.open(resource_path("image/sup2.jpg")), size=(50, 50))
+support3 = customtkinter.CTkImage(dark_image=Image.open(resource_path("image/sup3.jpg")), size=(50, 50))
+support4 = customtkinter.CTkImage(dark_image=Image.open(resource_path("image/sup4.jpg")), size=(50, 50))
+support5 = customtkinter.CTkImage(dark_image=Image.open(resource_path("image/sup5.jpg")), size=(50, 50))
+line = customtkinter.CTkImage(dark_image=Image.open(resource_path("image/line.jpg")), size=(60, 60))
+arc_1 = customtkinter.CTkImage(dark_image=Image.open(resource_path("image/arc1.jpg")), size=(60, 60))
+arc_2 = customtkinter.CTkImage(dark_image=Image.open(resource_path("image/arc2.jpg")), size=(60, 60))
+arc_3 = customtkinter.CTkImage(dark_image=Image.open(resource_path("image/arc3.jpg")), size=(60, 60))
+arc_4 = customtkinter.CTkImage(dark_image=Image.open(resource_path("image/arc4.jpg")), size=(60, 60))
+force = customtkinter.CTkImage(dark_image=Image.open(resource_path("image/force.jpg")), size=(60, 60))
+save = customtkinter.CTkImage(dark_image=Image.open(resource_path("image/save.png")), size=(30, 30))
+calculate = customtkinter.CTkImage(dark_image=Image.open(resource_path("image/calculate.png")), size=(30, 30))
+change_dimension = customtkinter.CTkImage(dark_image=Image.open(resource_path("image/change_dimension.png")), size=(30, 30))
+undo_image = customtkinter.CTkImage(dark_image=Image.open(resource_path("image/undo.png")), size=(30, 30))
+redo_image = customtkinter.CTkImage(dark_image=Image.open(resource_path("image/redo.png")), size=(30, 30))
+delete_image = customtkinter.CTkImage(dark_image=Image.open(resource_path("image/delete.png")), size=(30, 30))
+beam_image = customtkinter.CTkImage(dark_image=Image.open(resource_path("image/beam.png")), size=(30, 30))
+select_image = customtkinter.CTkImage(dark_image=Image.open(resource_path("image/select.png")), size=(30, 30))
+move_image = customtkinter.CTkImage(dark_image=Image.open(resource_path("image/move.png")), size=(30, 30))
+linear_force = customtkinter.CTkImage(dark_image=Image.open(resource_path("image/linear.png")), size=(100, 60))
+moment_image = customtkinter.CTkImage(dark_image=Image.open(resource_path("image/moment.png")), size=(60, 60))
 
 #Canvas
 canvas = Canvas(main_frame, bg="white", width= 5000, height= 5000)
@@ -1022,7 +1030,7 @@ def place_support():
 #funkcie pre zlovenie podpory
 def sup1():
     global support1, resized_support1_image, support1_1, sup_index
-    support1_image = Image.open("image/sup1.jpg")
+    support1_image = Image.open(resource_path("image/sup1.jpg"))
     resized_support1_image = support1_image.resize((45, 45))
     support1_1 = ImageTk.PhotoImage(resized_support1_image)
     sup_index = 1
@@ -1030,7 +1038,7 @@ def sup1():
 
 def sup2():
     global support1, resized_support1_image, support1_1, sup_index
-    support1_image = Image.open("image/sup2.jpg")
+    support1_image = Image.open(resource_path("image/sup2.jpg"))
     resized_support1_image = support1_image.resize((45, 45))
     support1_1 = ImageTk.PhotoImage(resized_support1_image)
     sup_index = 2
@@ -1038,7 +1046,7 @@ def sup2():
 
 def sup3():
     global support1, resized_support1_image, support1_1, sup_index
-    support1_image = Image.open("image/sup3.jpg")
+    support1_image = Image.open(resource_path("image/sup3.jpg"))
     resized_support1_image = support1_image.resize((45, 45))
     support1_1 = ImageTk.PhotoImage(resized_support1_image)
     sup_index = 3
@@ -1046,7 +1054,7 @@ def sup3():
 
 def sup4():
     global support1, resized_support1_image, support1_1, sup_index
-    support1_image = Image.open("image/sup4.jpg")
+    support1_image = Image.open(resource_path("image/sup4.jpg"))
     resized_support1_image = support1_image.resize((45, 45))
     support1_1 = ImageTk.PhotoImage(resized_support1_image)
     sup_index = 4
@@ -1054,7 +1062,7 @@ def sup4():
 
 def sup5():
     global support1, resized_support1_image, support1_1, sup_index
-    support1_image = Image.open("image/sup5.jpg")
+    support1_image = Image.open(resource_path("image/sup5.jpg"))
     resized_support1_image = support1_image.resize((45, 45))
     support1_1 = ImageTk.PhotoImage(resized_support1_image)
     sup_index = 5
@@ -1502,7 +1510,16 @@ def place_support_window():
         sup_toplevel.title("")
         sup_toplevel.geometry("400x400")
         sup_toplevel.attributes("-topmost", True)
-        sup_toplevel.resizable("False", "False")
+        sup_toplevel.minsize(300, 300)
+        sup_toplevel.resizable("True", "True")
+
+        sup_toplevel.grid_rowconfigure(0, weight=3)  # Riadok s canvasom dostane väčšiu váhu pre roztiahnutie
+        sup_toplevel.grid_rowconfigure(1, weight=0)
+        sup_toplevel.grid_rowconfigure(2, weight=0)
+        sup_toplevel.grid_rowconfigure(3, weight=0)
+        sup_toplevel.grid_rowconfigure(4, weight=1)  # Riadok s tlačidlom "Vytvor podporu" môže mať menšiu váhu
+        sup_toplevel.grid_columnconfigure(0, weight=1)
+
         style = ttk.Style()
         style.configure("TScale", background="black", troughcolor="blue")
         style.configure("TLabel", background="black", troughcolor="blue", foreground="lightblue")
@@ -1920,14 +1937,26 @@ def place_force_window():
         force_toplevel.title("")
         force_toplevel.geometry("400x400")
         force_toplevel.attributes("-topmost", True)
-        force_toplevel.resizable("False", "False")
+        force_toplevel.resizable("True", "True")
+        force_toplevel.minsize(300, 300)
         style = ttk.Style()
         style.configure("TScale", background="black", troughcolor="blue")
         style.configure("TLabel", background="black", troughcolor="blue", foreground="lightblue")
         if force_index == 1:
+            force_toplevel.grid_columnconfigure(0, weight=1)  # Jeden hlavný stĺpec
+            force_toplevel.grid_rowconfigure(1, weight=0)
+            force_toplevel.grid_rowconfigure(2, weight=0)
+            force_toplevel.grid_rowconfigure(3, weight=0)  # Riadok pre Angle_label a Mag_label
+            force_toplevel.grid_rowconfigure(4, weight=1)
             force_canvas = Canvas(force_toplevel, width=475, height=300, bg='white')
             force_canvas.grid(row=0, column=0, padx=10, pady=10, sticky=E + W + N)
         if force_index == 2:
+            force_toplevel.grid_columnconfigure(0, weight=1)
+            force_toplevel.grid_columnconfigure(1, weight=1)  # Dva hlavné stĺpce pre widgety pod canvasom
+            force_toplevel.grid_rowconfigure(1, weight=0)  # Entries pre start/end value
+            force_toplevel.grid_rowconfigure(2, weight=0)  # Scales pre start/end value
+            force_toplevel.grid_rowconfigure(3, weight=0)  # Entries pre mag_start/end
+            force_toplevel.grid_rowconfigure(4, weight=1)
             force_canvas = Canvas(force_toplevel, width=475, height=300, bg='white')
             force_canvas.grid(row=0, column=0, columnspan = 2, padx=10, pady=10, sticky=E + W + N)
 
@@ -2293,12 +2322,20 @@ def place_moment_window():
         moment_toplevel.title("")
         moment_toplevel.geometry("400x400")
         moment_toplevel.attributes("-topmost", True)
-        moment_toplevel.resizable("False", "False")
+        moment_toplevel.resizable("True", "True")
+        moment_toplevel.minsize(300, 300)
+        moment_toplevel.grid_rowconfigure(0, weight=3)  # Riadok pre canvas
+        moment_toplevel.grid_rowconfigure(1, weight=0)  # Riadok pre 'value' Entry
+        moment_toplevel.grid_rowconfigure(2, weight=0)  # Riadok pre 'scale'
+        moment_toplevel.grid_rowconfigure(3, weight=0)  # Riadok pre 'Mag_label' a 'entry_mag'
+        moment_toplevel.grid_rowconfigure(4, weight=1)  # Riadok pre tlačidlá (môže sa roztiahnuť vertikálne)
+        moment_toplevel.grid_columnconfigure(0, weight=1)  # Prvý stĺpec
+        moment_toplevel.grid_columnconfigure(1, weight=1)
         style = ttk.Style()
         style.configure("TScale", background="black", troughcolor="blue")
         style.configure("TLabel", background="black", troughcolor="blue", foreground="lightblue")
         moment_canvas = Canvas(moment_toplevel, width=475, height=300, bg='white')
-        moment_canvas.grid(row=0, column=0, padx=10, pady=10, sticky=E + W + N)
+        moment_canvas.grid(row=0, column=0,columnspan=2, padx=10, pady=10, sticky="nsew")
 
         if dim_coords_x > 2000 or dim_coords_y > 1000:
             line_force_scale = 8
@@ -2342,15 +2379,20 @@ def place_moment_window():
             orientation = "vertical"
 
         value = Entry(moment_toplevel, text="0", font=('Arial', 15,), justify=CENTER, width=6)
-        value.grid(row=1, column=0)
+        value.grid(row=1, column=0, columnspan=2,padx=10, pady=(10,0), sticky="ew")
         value.insert(0, "0")
         scale = ttk.Scale(moment_toplevel, from_=0, to=(dim_coords_x + dim_coords_y) * line_force_scale,
                           orient=HORIZONTAL, command=update_label, length=450)
-        scale.grid(row=2, column=0, padx=10, pady=10)
-        Mag_label = ttk.Label(moment_toplevel, text="Moment:", font=('Arial', 12,))
-        Mag_label.grid(row=3, column=0, padx=10, pady=0, sticky=S)
-        entry_mag = ttk.Entry(moment_toplevel, width=20)
-        entry_mag.grid(row=4, column=0, padx=10, pady=10, ipady=5)
+        scale.grid(row=2, column=0, columnspan=2, padx=10, pady=5, sticky="ew")
+        mag_frame = customtkinter.CTkFrame(moment_toplevel)  # Používam CTkFrame, ak je to preferované
+        mag_frame.grid(row=3, column=0, columnspan=2, padx=10, pady=5, sticky="ew")
+        mag_frame.grid_columnconfigure(0, weight=0)  # Stĺpec pre label (fixná šírka)
+        mag_frame.grid_columnconfigure(1, weight=1)  # Stĺpec pre entry (roztiahne sa)
+
+        Mag_label = ttk.Label(mag_frame, text="Moment [Nm]:", font=('Arial', 12,))
+        Mag_label.grid(row=0, column=0, padx=(0, 5), pady=5, sticky="w")
+        entry_mag = ttk.Entry(mag_frame)  # Odstránená fixná šírka
+        entry_mag.grid(row=0, column=1, pady=5, sticky="ew")
         entry_mag.insert(0, "0")
         value.delete(0, END)
         value.insert(0, "0")
@@ -2358,9 +2400,9 @@ def place_moment_window():
         entry_mag.bind("<Return>", update)
         moment_button = customtkinter.CTkButton(moment_toplevel, text="Vytvor moment", height=40, width=50,
                                                command=place_moment)
-        moment_button.grid(row=4, column=0, padx=10, pady=10, sticky=E + S)
+        moment_button.grid(row=4, column=1, padx=(5,10), pady=10, sticky="ewns")
         change_orientation = customtkinter.CTkButton(moment_toplevel, text="Zmen orientáciu", height=40, width=50, command=change_orient)
-        change_orientation.grid(row=4, column=0, padx=10, pady=10, sticky=W + S)
+        change_orientation.grid(row=4, column=0, padx=(10,5), pady=10, sticky="ewns")
         moment_toplevel.bind("<Destroy>", lambda event: deselect_line())
         moment_counter += 1
         update("")
@@ -3332,73 +3374,6 @@ def calc():
 
             new_i += len(beam_seg_ver) - 1
 
-    with open('data.txt', 'w') as file:
-        file.write(f"pocet_usekov: {pocet_usekov}\n")
-
-        # Dĺžky úsekov
-        file.write("dlzky_usekov:\n")
-        for i, dlzka in enumerate(dlzky_usekov, start=1):
-            file.write(f"  dlzka_useku_{i}: {dlzka}\n")
-
-        # q pre každý úsek
-        file.write("q_useky:\n")
-        for i, q in enumerate(q_usekov, start=1):
-            file.write(f"  q_usek_{i}: {q}\n")
-
-        # Sily pre každý úsek
-        file.write("F_useky:\n")
-        for i, F in enumerate(F_usekov, start=1):
-            file.write(f"  F_usek_{i}: {F}\n")
-
-        file.write(f"  Sila na konci: {F_end}\n")
-
-        file.write("F_x_useky:\n")
-        for i, F in enumerate(F_x_usekov, start=1):
-            file.write(f"  F_x_usek_{i}: {F}\n")
-
-        file.write("Sily v podporach:\n")
-        file.write(f"  FAx: {x[0]}\n")
-        file.write(f"  FAy: {x[1]}\n")
-        file.write(f"  FB: {x[2]}\n")
-
-        file.write("R_useky:\n")
-        for i, F in enumerate(R_usekov, start=1):
-            file.write(f"  R_usek_{i}: {F}\n")
-
-        file.write("Rx_useky:\n")
-        for i, F in enumerate(R_x_usekov, start=1):
-            file.write(f"  Rx_usek_{i}: {F}\n")
-
-        file.write("M_useky:\n")
-        for i, F in enumerate(M_usekov, start=1):
-            file.write(f"  M_usek_{i}: {F}\n")
-
-        file.write(f"pocet_usekov: {len(filtered_ver)-1}\n")
-
-        # q pre každý úsek
-        file.write("q_useky:\n")
-        for i, q in enumerate(q_usekov_ver, start=1):
-            file.write(f"  q_usek_{i}: {q}\n")
-
-        # Sily pre každý úsek
-        file.write("F_useky:\n")
-        for i, F in enumerate(F_usekov_ver, start=1):
-            file.write(f"  F_usek_{i}: {F}\n")
-
-        file.write(f"  Sila na konci: {F_end_ver}\n")
-
-        file.write("F_x_useky:\n")
-        for i, F in enumerate(F_x_usekov_ver, start=1):
-            file.write(f"  F_x_usek_{i}: {F}\n")
-
-        file.write("R_useky:\n")
-        for i, F in enumerate(R_usekov_ver, start=1):
-            file.write(f"  R_usek_{i}: {F}\n")
-
-        file.write("M_useky:\n")
-        for i, F in enumerate(M_usekov_ver, start=1):
-            file.write(f"  M_usek_{i}: {F}\n")
-
     window.withdraw()
     plt.tight_layout()
     plt.show()
@@ -3971,7 +3946,8 @@ def graph():
             if support_index not in support_image_dict:
                 try:
                     image_path = f"image/sup{support_index}.jpg"
-                    image = Image.open(image_path)
+                    abs_path = resource_path(image_path)
+                    image = Image.open(abs_path)
                     resized = image.resize((45, 45))
                     if support_index == 2:
                         angle = sup_angle  # pretože sup_angle je len jedno číslo
